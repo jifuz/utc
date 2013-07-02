@@ -1,0 +1,128 @@
+function type=classifyType(tags)
+
+fns=fieldnames(tags);
+
+building=false;
+
+highway=false;
+bridge=false;
+footway=false;
+
+bus_stop=false;
+traffic_signals=false;
+
+parking=false;
+park=false;
+
+for tt=1:numel(fns)
+    field=fns{tt};
+    value=tags.(field);
+    
+    switch lower(field)
+        case 'building'
+            building=true;
+            
+        case 'highway'
+            highway=true;
+            switch lower(value)
+                case 'bus_stop'
+                    bus_stop=true;
+                case 'traffic_signals'
+                    traffic_signals=true;
+                case 'footway'
+                    footway=true;
+                case 'steps'
+                    footway=true;
+                case 'access_ramp'
+                    footway=true;
+            end
+            
+            
+        case 'bridge'
+            bridge=true;
+            
+        case 'amenity'
+            switch lower(value)
+                case 'parking'
+                    parking=true;
+            end
+            
+        case 'leisure'
+            switch lower(value)
+                case 'recreation_ground'
+                    park=true;
+            end
+            
+        case 'landuse'
+            switch lower(value)
+                case 'recreation_ground'
+                    park=true;
+                case 'park'
+                    park=true;
+            end
+    end
+    
+end
+
+
+%     if strcmp(lower(field), 'building')
+%         type='building';
+%         return;
+%     end
+%
+%
+%     if strcmp(lower(field), 'highway')
+%         type='highway';
+%     end
+%
+%     if strcmp(lower(field), 'bridge')
+%         bridge=true;
+%         type='bridge';
+%     end
+%
+%     if strcmp(lower(field), 'amenity') ...
+%             && (strcmp(lower(value), 'parking'))
+%         type='parking';
+%         return;
+%     end
+%
+%
+%     if strcmp(lower(field), 'highway') &&...
+%         strcmp(lower(value), 'bus_stop')
+%         type='bus_stop';
+%     end
+%
+%      if strcmp(lower(field), 'highway') &&...
+%         strcmp(lower(value), 'traffic_signals')
+%         type='traffic_signals';
+% %     end
+% end
+
+%building
+if building
+    type='building';
+    
+    %higway - road
+elseif highway && ~bus_stop && ~traffic_signals && ~footway
+    type='highway';
+    
+elseif footway
+    type='footway';
+    
+    %traffic objects
+elseif traffic_signals
+    type='traffic_signals';
+elseif bus_stop
+    type='bus_stop';
+elseif bridge
+    type='bridge';
+    
+    %area
+elseif parking
+    type='parking';
+elseif park
+    type='park';
+else
+    type='undefined';
+    
+end
